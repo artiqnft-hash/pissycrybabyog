@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DMCA / Copyright Reporting</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #fff;
+        color: #111827;
+        min-height: 100vh;
+        line-height: 1.5;
+      }
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.875rem;
+        color: #0482B3;
+        text-decoration: none;
+        margin-bottom: 1.75rem;
+      }
+      .back:hover { text-decoration: underline; }
+      h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.4rem; }
+      .subtitle { font-size: 0.95rem; color: #4b5563; line-height: 1.7; margin-bottom: 1rem; }
+      .subtitle a { color: #0482B3; }
+      hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
+      h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; color: #111827; }
+
+      /* Alert boxes */
+      .alert {
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        padding: 0.85rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+      }
+      .alert-blue  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+      .alert-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; display:none; }
+      .alert-red   { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; display:none; }
+      .alert-icon  { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+      /* Form */
+      .form { display: flex; flex-direction: column; gap: 1.1rem; }
+      .field label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.3rem;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: #111827;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .field input:focus,
+      .field textarea:focus {
+        border-color: #0482B3;
+        box-shadow: 0 0 0 3px rgba(4,130,179,0.12);
+      }
+      .field textarea { min-height: 120px; resize: vertical; }
+      .req { color: #ef4444; }
+
+      /* Checkbox */
+      .check-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        padding: 0.85rem 1rem;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+      }
+      .check-row input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
+        accent-color: #0482B3;
+        cursor: pointer;
+      }
+      .check-row span { font-size: 0.83rem; color: #374151; line-height: 1.65; }
+
+      /* Submit button */
+      .btn-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        background-color: #0482B3;
+        color: #fff;
+        font-weight: 700;
+        padding: 0.8rem 1.5rem;
+        border-radius: 9999px;
+        border: none;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        font-family: inherit;
+      }
+      .btn-submit:hover:not(:disabled) { background-color: #03729e; }
+      .btn-submit:active:not(:disabled) { transform: scale(0.98); }
+      .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+      .spinner {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        display: none;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* What happens next */
+      .steps { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+      .steps li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        font-size: 0.9rem;
+        color: #374151;
+      }
+      .step-num {
+        width: 22px; height: 22px;
+        background: #0482B3;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        padding: 1.5rem;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        border-top: 1px solid #f3f4f6;
+        margin-top: 2rem;
+      }
+      .footer a { color: #9ca3af; text-decoration: none; }
+      .footer a:hover { color: #0482B3; text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top-nav" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem;">
+        <a href="../index.html" class="back" style="margin-bottom:0;">← Back to Home</a>
+        <div style="font-size:0.875rem;">
+          <a href="privacy.html" style="color:#0482B3; text-decoration:none;">Privacy Policy &amp; Terms</a>
+        </div>
+      </div>
+
+      <h1>DMCA / Copyright Reporting</h1>
+      <p class="subtitle">
+        We take copyright seriously. If you believe that material on this website infringes your copyright, please complete the form below. Your complaint will be sent to <a href="mailto:dmca.unovix@gmail.com">dmca.unovix@gmail.com</a> for review. We review complaints as promptly as reasonably possible and may contact you if additional information is required.
+      </p>
+
+      <!-- Success message -->
+      <div class="alert alert-green" id="msgSuccess">
+        <span class="alert-icon">✅</span>
+        <div>
+          <strong>Report submitted successfully!</strong> Your complaint has been delivered to
+          <strong>dmca.unovix@gmail.com</strong>. We will review it and respond within 3–5 business days.
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div class="alert alert-red" id="msgError">
+        <span class="alert-icon">⚠️</span>
+        <div id="errorText">
+          <strong>Submission failed.</strong> Please check your connection and try again, or email us directly at
+          <a href="mailto:dmca.unovix@gmail.com" style="color:#b91c1c;">dmca.unovix@gmail.com</a>.
+        </div>
+      </div>
+
+      <hr />
+      <h2>Submit a DMCA / Copyright Complaint</h2>
+
+      <form
+        class="form"
+        id="dmcaForm"
+        action="https://formsubmit.co/dmca.unovix@gmail.com"
+        method="POST"
+      >
+        <!-- FormSubmit Configuration -->
+        <input type="hidden" name="_subject" value="DMCA Copyright Complaint Received" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_next" id="_next" value="" />
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+
+        <div class="field">
+          <label for="fullName">Full Name <span class="req">*</span></label>
+          <input type="text" id="fullName" name="Full Name" placeholder="Your legal full name" required />
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address <span class="req">*</span></label>
+          <input type="email" id="email" name="Email Address" placeholder="your@email.com" required />
+        </div>
+
+        <div class="field">
+          <label for="contentUrl">URL of Reported Material <span class="req">*</span></label>
+          <input type="text" id="contentUrl" name="Reported Material URL" placeholder="https://... exact URL where material appears" required />
+        </div>
+
+        <div class="field">
+          <label for="description">Identification of Copyrighted Work <span class="req">*</span></label>
+          <textarea id="description" name="Identification of Copyrighted Work"
+            placeholder="Please describe the original copyrighted work you own or are authorized to represent, and provide its original URL where available."
+            required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="signature">Physical or Electronic Signature <span class="req">*</span></label>
+          <input type="text" id="signature" name="Physical or Electronic Signature" placeholder="Type your full legal name as your electronic signature" required />
+        </div>
+
+        <div class="check-row">
+          <input type="checkbox" id="declaration" name="Declaration" value="Confirmed under penalty of perjury" required />
+          <span>
+            I declare in good faith that the use of the material described above is not authorised
+            by the copyright owner, its agent, or the law. I declare that the information in this
+            notification is accurate and, under penalty of perjury, that I am the owner, or
+            authorised to act on behalf of the owner, of an exclusive right that is allegedly
+            infringed. <span class="req">*</span>
+          </span>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <div class="spinner" id="spinner"></div>
+          <svg id="sendIcon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9l20-7z"/>
+          </svg>
+          <span id="btnText">Submit DMCA Report</span>
+        </button>
+      </form>
+
+      <hr />
+
+      <h2>Additional Information Required for Copyright Complaints</h2>
+      <p style="font-size:0.9rem; color:#374151; margin-bottom: 0.5rem;">To help us review your complaint, please provide:</p>
+      <ul style="padding-left:1.25rem; color:#374151; font-size:0.9rem; line-height:1.7; margin-bottom:1rem;">
+        <li>Your full legal name and contact email.</li>
+        <li>Identification of the copyrighted work you believe has been infringed.</li>
+        <li>The exact URL of the material you are reporting.</li>
+        <li>A description explaining why you believe the material is unauthorized.</li>
+        <li>A statement that you have a good-faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.</li>
+        <li>A statement that the information in your notice is accurate and, under penalty of perjury, that you are the copyright owner or authorized to act on behalf of the owner.</li>
+        <li>Your physical or electronic signature.</li>
+      </ul>
+
+      <h2>Counter-Notification</h2>
+      <p style="font-size:0.9rem; color:#374151; line-height:1.6; margin-bottom:0.5rem;">
+        To submit a counter-notification, please email <a href="mailto:dmca.unovix@gmail.com" style="color:#0482B3;">dmca.unovix@gmail.com</a> with:
+      </p>
+      <ul style="padding-left:1.25rem; color:#374151; font-size:0.9rem; line-height:1.7; margin-bottom:0.75rem;">
+        <li>Your full legal name and contact information.</li>
+        <li>Identification of the material that was removed or disabled.</li>
+        <li>The URL where the material appeared before removal.</li>
+        <li>An explanation of why you believe the material was removed or disabled by mistake or misidentification.</li>
+        <li>Any declarations and physical or electronic signature required by applicable copyright law.</li>
+      </ul>
+      <p style="font-size:0.9rem; color:#374151; line-height:1.6; margin-bottom:0.75rem;">
+        We will review counter-notifications and handle them according to applicable legal requirements.
+      </p>
+
+      <h2>Complaint Review</h2>
+      <p style="font-size:0.9rem; color:#374151; line-height:1.6; margin-bottom:0.75rem;">
+        We review copyright complaints and may remove or disable access to material when appropriate. We may request additional information if a complaint is incomplete.
+      </p>
+      <p style="font-size:0.9rem; color:#374151; line-height:1.6; margin-bottom:0.75rem;">
+        Submitting a complaint does not automatically guarantee removal.
+      </p>
+
+      <hr />
+
+      <h2>What Happens Next?</h2>
+      <ul class="steps">
+        <li><span class="step-num">1</span> We receive your copyright complaint.</li>
+        <li><span class="step-num">2</span> We review the information and may request additional details.</li>
+        <li><span class="step-num">3</span> Where appropriate, we may remove or disable access to the reported material.</li>
+        <li><span class="step-num">4</span> We communicate the outcome or any further steps by email, where applicable.</li>
+      </ul>
+      <p style="font-size:0.9rem; color:#6b7280; margin-top:0.75rem;">
+        Submitting a complaint does not automatically guarantee removal.
+      </p>
+
+      <hr />
+
+      <h2>Direct Contact</h2>
+      <p style="font-size:0.9rem; color:#374151;">
+        DMCA / Copyright Agent:<br />
+        📧 <a href="mailto:dmca.unovix@gmail.com" style="color:#0482B3;">dmca.unovix@gmail.com</a>
+      </p>
+
+      <p style="font-size:0.78rem; color:#9ca3af; margin-top:2rem;">Last updated: November 2026</p>
+    </div>
+
+    <footer class="footer">
+      <a href="../index.html">Home</a> &nbsp;·&nbsp;
+      <a href="dmca.html">DMCA / Report Copyright</a> &nbsp;·&nbsp;
+      <a href="privacy.html">Privacy &amp; Terms</a> &nbsp;·&nbsp;
+      <a href="mailto:dmca.unovix@gmail.com">dmca.unovix@gmail.com</a>
+    </footer>
+
+    <script>
+      const form       = document.getElementById('dmcaForm');
+      const submitBtn  = document.getElementById('submitBtn');
+      const spinner    = document.getElementById('spinner');
+      const sendIcon   = document.getElementById('sendIcon');
+      const btnText    = document.getElementById('btnText');
+      const msgSuccess = document.getElementById('msgSuccess');
+      const msgError   = document.getElementById('msgError');
+      const nextInput  = document.getElementById('_next');
+
+      // Set redirect URL for FormSubmit when hosted
+      if (nextInput && window.location.protocol.startsWith('http')) {
+        try {
+          nextInput.value = new URL('thankyou.html', window.location.href).href;
+        } catch (e) {
+          nextInput.value = window.location.href.replace(/dmca\.html.*$/, 'thankyou.html');
+        }
+      }
+
+      function setLoading(on) {
+        submitBtn.disabled     = on;
+        spinner.style.display  = on ? 'block' : 'none';
+        sendIcon.style.display = on ? 'none'  : 'block';
+        btnText.textContent    = on ? 'Submitting…' : 'Submit DMCA Report';
+      }
+
+      function showMsg(el) {
+        el.style.display = 'flex';
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      form.addEventListener('submit', async function (e) {
+        // Validate form fields
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        // On live servers (http / https), attempt seamless AJAX first
+        if (window.location.protocol.startsWith('http')) {
+          e.preventDefault();
+          setLoading(true);
+          msgSuccess.style.display = 'none';
+          msgError.style.display   = 'none';
+
+          try {
+            const formData = new FormData(form);
+            const res = await fetch('https://formsubmit.co/ajax/dmca.unovix@gmail.com', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json'
+              },
+              body: formData
+            });
+
+            const data = await res.json().catch(() => null);
+
+            // Handle successful submission
+            if (res.ok && data && (data.success === true || data.success === 'true' || (data.message && data.message.toLowerCase().includes('success')))) {
+              setLoading(false);
+              form.style.display = 'none';
+              showMsg(msgSuccess);
+              return;
+            }
+
+            // If FormSubmit requires email activation on first use
+            if (data && data.message && (data.message.toLowerCase().includes('activate') || data.message.toLowerCase().includes('confirm'))) {
+              setLoading(false);
+              const errorText = document.getElementById('errorText');
+              if (errorText) {
+                errorText.innerHTML = '<strong>FormSubmit Activation Required:</strong> FormSubmit sent an activation email to <strong>dmca.unovix@gmail.com</strong>. Please open that email and click the confirmation link to activate the form.';
+              }
+              showMsg(msgError);
+              return;
+            }
+          } catch (err) {
+            console.warn('FormSubmit AJAX failed, falling back to standard form submission:', err);
+          }
+
+          // Fallback: submit natively to FormSubmit
+          form.submit();
+        } else {
+          // If testing via file:// protocol, let standard form POST directly to FormSubmit
+          setLoading(true);
+        }
+      });
+    </script>
+  </body>
+</html>

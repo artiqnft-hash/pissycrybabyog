@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PISSYCRYBABYOG</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════
+         AGE VERIFICATION OVERLAY
+         Blocks all page interaction until confirmed
+    ═══════════════════════════════════════════ -->
+    <div id="ageGate" class="age-gate">
+      <div class="age-gate__card">
+        <!-- Shield icon -->
+        <div class="age-gate__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24"
+            fill="none" stroke="#0482B3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+
+        <div class="age-gate__badge">18+</div>
+        <h2 class="age-gate__title">Age Verification</h2>
+        <p class="age-gate__question" style="font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Are you 18 years of age or older?</p>
+        <p class="age-gate__text">
+          This website contains links to third-party adult-oriented content. You must be at least 18 years old, or the legal age of majority in your jurisdiction, to continue.
+          <br /><br />
+          By selecting "Yes, I am 18+", you confirm that you meet the applicable age requirement.
+        </p>
+
+        <div class="age-gate__actions">
+          <button class="age-gate__btn age-gate__btn--confirm age-gate__btn--ready" id="ageBtnYes" onclick="ageConfirm()">
+            Yes, I am 18+
+          </button>
+          <button class="age-gate__btn age-gate__btn--exit" onclick="ageExit()">
+            No, Exit Website
+          </button>
+        </div>
+
+        <p class="age-gate__legal">
+          By entering you agree to our
+          <a href="pages/privacy.html">Terms of Use &amp; Privacy Policy</a>.
+          <br />This is an independently operated promotional website.
+        </p>
+      </div>
+    </div>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <div class="navbar-logo-wrapper">
+            <a href="https://t.ajrkmx11.com/419909/8780/32516?po=6533&aff_sub5=SF_006OG000004lmDN" target="_blank" rel="noopener noreferrer">
+              <img
+                src="assets/sarah_lxves_banner_hd.png"
+                alt="Sarah Lxves Banner"
+                class="navbar-logo"
+              />
+            </a>
+          </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="main-container">
+      
+      <!-- Action Buttons -->
+      <div class="buttons-group">
+        <a href="https://t.ajrkmx11.com/419909/8780/32516?po=6533&aff_sub5=SF_006OG000004lmDN" target="_blank" rel="noopener noreferrer" class="btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off">
+            <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.578 1 1 0 0 1 0 .692 10.101 10.101 0 0 1-4.637 5.166"/>
+            <path d="M1.377 12.512a1 1 0 0 1 0-.692 10.744 10.744 0 0 1 18.083-4.646"/>
+            <path d="m2 2 20 20"/>
+            <path d="M8.47 8.47a4 4 0 0 0 5.06 5.06"/>
+          </svg>
+          +18 Livestream
+        </a>
+        <a href="https://t.ajrkmx11.com/419909/8780/32516?po=6533&aff_sub5=SF_006OG000004lmDN" target="_blank" rel="noopener noreferrer" class="btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+          </svg>
+          Explicit Content
+        </a>
+      </div>
+    </div>
+
+    <!-- Independent Website Disclosure -->
+    <div class="disclosure">
+      This is an independently operated promotional website. It is not the official website or
+      personal account of any featured creator.
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <a href="pages/dmca.html">DMCA / Report Copyright</a>
+      <span>·</span>
+      <a href="pages/privacy.html">Privacy Policy &amp; Terms</a>
+      <span>·</span>
+      <a href="mailto:dmca.unovix@gmail.com">dmca.unovix@gmail.com</a>
+    </footer>
+
+    <!-- Age Gate Script -->
+    <script>
+      let autoDismissTimer = null;
+
+      (function () {
+        const gate = document.getElementById('ageGate');
+
+        // Check if user has already verified during this session
+        if (sessionStorage.getItem('ageVerified') === '1') {
+          gate.style.display = 'none';
+          return;
+        }
+
+        // Lock scroll and display popup
+        document.body.style.overflow = 'hidden';
+
+        // Auto-dismiss after 5 seconds if user doesn't click
+        autoDismissTimer = setTimeout(function () {
+          ageConfirm();
+        }, 5000);
+      })();
+
+      function ageConfirm() {
+        if (autoDismissTimer) {
+          clearTimeout(autoDismissTimer);
+          autoDismissTimer = null;
+        }
+        // Remember choice during this browsing session
+        sessionStorage.setItem('ageVerified', '1');
+        const gate = document.getElementById('ageGate');
+        gate.classList.add('age-gate--out');
+        document.body.style.overflow = '';
+        setTimeout(function () { gate.style.display = 'none'; }, 400);
+      }
+
+      function ageExit() {
+        if (autoDismissTimer) {
+          clearTimeout(autoDismissTimer);
+          autoDismissTimer = null;
+        }
+        window.location.replace('https://www.google.com');
+      }
+    </script>
+  </body>
+</html>
