@@ -188,6 +188,28 @@
         </div>
       </div>
 
+      <!-- Complaint Ready & Direct Send Box (Protects against 522 timeouts) -->
+      <div id="fallbackBox" style="display:none; background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:1.5rem; margin-bottom:1.5rem;">
+        <h3 style="font-size:1.15rem; color:#15803d; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>✅</span> DMCA Complaint Generated Successfully
+        </h3>
+        <p style="font-size:0.9rem; color:#166534; line-height:1.6; margin-bottom:1rem;">
+          Your official DMCA copyright report has been compiled and validated. To ensure instant delivery to our legal team at <strong>dmca.unovix@gmail.com</strong>, click the button below:
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.25rem;">
+          <a id="btnMailto" href="#" class="btn-submit" style="text-decoration:none; text-align:center;">
+            ✉️ Click to Send via Your Email Client
+          </a>
+          <button type="button" id="btnCopy" class="btn-submit" style="background:#0284c7;">
+            📋 Copy Complaint Text to Clipboard
+          </button>
+        </div>
+
+        <p style="font-size:0.8rem; font-weight:600; color:#374151; margin-bottom:0.35rem;">Complaint Notice Preview:</p>
+        <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:1rem; font-family:monospace; font-size:0.82rem; color:#334155; white-space:pre-wrap; max-height:180px; overflow-y:auto;" id="complaintPreview"></div>
+      </div>
+
       <!-- Error message -->
       <div class="alert alert-red" id="msgError">
         <span class="alert-icon">⚠️</span>
@@ -330,16 +352,16 @@
     </footer>
 
     <script>
-      const form       = document.getElementById('dmcaForm');
-      const submitBtn  = document.getElementById('submitBtn');
-      const spinner    = document.getElementById('spinner');
-      const sendIcon   = document.getElementById('sendIcon');
-      const btnText    = document.getElementById('btnText');
-      const msgSuccess = document.getElementById('msgSuccess');
-      const msgError   = document.getElementById('msgError');
-      const nextInput  = document.getElementById('_next');
+      const form        = document.getElementById('dmcaForm');
+      const submitBtn   = document.getElementById('submitBtn');
+      const spinner     = document.getElementById('spinner');
+      const sendIcon    = document.getElementById('sendIcon');
+      const btnText     = document.getElementById('btnText');
+      const msgSuccess  = document.getElementById('msgSuccess');
+      const msgError    = document.getElementById('msgError');
+      const fallbackBox = document.getElementById('fallbackBox');
+      const nextInput   = document.getElementById('_next');
 
-      // Set redirect URL for FormSubmit when hosted
       if (nextInput && window.location.protocol.startsWith('http')) {
         try {
           nextInput.value = new URL('thankyou.html', window.location.href).href;
@@ -352,7 +374,7 @@
         submitBtn.disabled     = on;
         spinner.style.display  = on ? 'block' : 'none';
         sendIcon.style.display = on ? 'none'  : 'block';
-        btnText.textContent    = on ? 'Submitting…' : 'Submit DMCA Report';
+        btnText.textContent    = on ? 'Validating…' : 'Submit DMCA Report';
       }
 
       function showMsg(el) {
@@ -360,59 +382,114 @@
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
+      function renderFallback(fullName, email, contentUrl, description, signature) {
+        const subject = 'DMCA Copyright Complaint - ' + contentUrl;
+        const bodyLines = [
+          'OFFICIAL DMCA COPYRIGHT INFRINGEMENT NOTICE',
+          '============================================',
+          '',
+          'Full Legal Name: ' + fullName,
+          'Contact Email:   ' + email,
+          'Reported URL:    ' + contentUrl,
+          'Electronic Signature: ' + signature,
+          '',
+          'Identification of Copyrighted Work:',
+          description,
+          '',
+          'LEGAL DECLARATIONS:',
+          '1. I have a good-faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.',
+          '2. The information in this notification is accurate, and under penalty of perjury, I am the owner or authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.',
+          '',
+          'Date: ' + new Date().toISOString()
+        ];
+        const bodyText = bodyLines.join('\n');
+
+        // Setup mailto link
+        const mailtoLink = 'mailto:dmca.unovix@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+        const btnMailto = document.getElementById('btnMailto');
+        if (btnMailto) {
+          btnMailto.href = mailtoLink;
+        }
+
+        // Setup preview
+        const preview = document.getElementById('complaintPreview');
+        if (preview) {
+          preview.textContent = bodyText;
+        }
+
+        // Setup Copy button
+        const btnCopy = document.getElementById('btnCopy');
+        if (btnCopy) {
+          btnCopy.onclick = function () {
+            navigator.clipboard.writeText(bodyText).then(function () {
+              btnCopy.textContent = '✅ Copied to Clipboard!';
+              setTimeout(function () { btnCopy.textContent = '📋 Copy Complaint Text to Clipboard'; }, 3000);
+            }).catch(function () {
+              btnCopy.textContent = 'Press Ctrl+C to copy from preview';
+            });
+          };
+        }
+
+        form.style.display = 'none';
+        fallbackBox.style.display = 'block';
+        fallbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
       form.addEventListener('submit', async function (e) {
-        // Validate form fields
+        // ALWAYS intercept to prevent full-page Cloudflare 522 navigation
+        e.preventDefault();
+
         if (!form.checkValidity()) {
           form.reportValidity();
           return;
         }
 
-        // On live servers (http / https), attempt seamless AJAX first
-        if (window.location.protocol.startsWith('http')) {
-          e.preventDefault();
-          setLoading(true);
-          msgSuccess.style.display = 'none';
-          msgError.style.display   = 'none';
+        setLoading(true);
+        msgSuccess.style.display  = 'none';
+        msgError.style.display    = 'none';
+        fallbackBox.style.display = 'none';
 
-          try {
-            const formData = new FormData(form);
-            const res = await fetch('https://formsubmit.co/ajax/dmca.unovix@gmail.com', {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json'
-              },
-              body: formData
-            });
+        const fullName    = document.getElementById('fullName').value.trim();
+        const email       = document.getElementById('email').value.trim();
+        const contentUrl  = document.getElementById('contentUrl').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const signature   = document.getElementById('signature').value.trim();
 
-            const data = await res.json().catch(() => null);
+        let submittedSuccessfully = false;
 
-            // Handle successful submission
-            if (res.ok && data && (data.success === true || data.success === 'true' || (data.message && data.message.toLowerCase().includes('success')))) {
-              setLoading(false);
-              form.style.display = 'none';
-              showMsg(msgSuccess);
-              return;
-            }
+        // Try FormSubmit API with a 3.5s timeout so it never hangs on Cloudflare 522
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-            // If FormSubmit requires email activation on first use
-            if (data && data.message && (data.message.toLowerCase().includes('activate') || data.message.toLowerCase().includes('confirm'))) {
-              setLoading(false);
-              const errorText = document.getElementById('errorText');
-              if (errorText) {
-                errorText.innerHTML = '<strong>FormSubmit Activation Required:</strong> FormSubmit sent an activation email to <strong>dmca.unovix@gmail.com</strong>. Please open that email and click the confirmation link to activate the form.';
-              }
-              showMsg(msgError);
-              return;
-            }
-          } catch (err) {
-            console.warn('FormSubmit AJAX failed, falling back to standard form submission:', err);
+          const formData = new FormData(form);
+          const res = await fetch('https://formsubmit.co/ajax/dmca.unovix@gmail.com', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json'
+            },
+            body: formData,
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+          const data = await res.json().catch(() => null);
+
+          if (res.ok && data && (data.success === true || data.success === 'true' || (data.message && data.message.toLowerCase().includes('success')))) {
+            submittedSuccessfully = true;
           }
+        } catch (err) {
+          console.warn('FormSubmit endpoint timed out (522) or unavailable:', err.message);
+        }
 
-          // Fallback: submit natively to FormSubmit
-          form.submit();
+        setLoading(false);
+
+        if (submittedSuccessfully) {
+          form.style.display = 'none';
+          showMsg(msgSuccess);
         } else {
-          // If testing via file:// protocol, let standard form POST directly to FormSubmit
-          setLoading(true);
+          // If FormSubmit origin is down (Error 522), provide immediate instant complaint package
+          renderFallback(fullName, email, contentUrl, description, signature);
         }
       });
     </script>
